@@ -144,7 +144,9 @@ def turnSubArraysToJson(objectsArr):
 		result.append(data)
 	return result
 
-
+@application.route('/', methods=['GET'])
+def index():
+    return jsonify({"message": "FloorPlanTo3D API. Use POST / with form field 'image' (file)."}), 200
 
 @application.route('/',methods=['POST'])
 def prediction():
