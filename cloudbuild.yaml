@@ -1,0 +1,18 @@
+ steps:
+     # Download weights from GCS into weights/ for the Docker build
+     - name: 'gcr.io/cloud-builders/gsutil'
+       args: ['-m', 'cp', '-r', 'gs://bureau32-wall-extrusion-artifacts/floorplan3d/*', 'weights/']
+     # Build the image (weights/ is now populated)
+     - name: 'gcr.io/cloud-builders/docker'
+       args:
+         - 'build'
+         - '--platform'
+         - 'linux/amd64'
+         - '-t'
+         - 'europe-west1-docker.pkg.dev/$PROJECT_ID/floorplan3d/floorplan3d-api:$COMMIT_SHA'
+         - '-t'
+         - 'europe-west1-docker.pkg.dev/$PROJECT_ID/floorplan3d/floorplan3d-api:latest'
+         - '.'
+   images:
+     - 'europe-west1-docker.pkg.dev/$PROJECT_ID/floorplan3d/floorplan3d-api:$COMMIT_SHA'
+     - 'europe-west1-docker.pkg.dev/$PROJECT_ID/floorplan3d/floorplan3d-api:latest'
