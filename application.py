@@ -67,20 +67,25 @@ class PredictionConfig(Config):
 	GPU_COUNT = 1
 	IMAGES_PER_GPU = 1
 	
-@application.before_first_request
-def load_model():
+def load_model_impl():
+	"""Load Mask R-CNN model and config. Used at startup (e.g. Cloud Run) and by before_first_request."""
 	global cfg
 	global _model
 	model_folder_path = os.path.abspath("./") + "/mrcnn"
-	weights_path= os.path.join(WEIGHTS_FOLDER, WEIGHTS_FILE_NAME)
-	cfg=PredictionConfig()
+	weights_path = os.path.join(WEIGHTS_FOLDER, WEIGHTS_FILE_NAME)
+	cfg = PredictionConfig()
 	print(cfg.IMAGE_RESIZE_MODE)
 	print('==============before loading model=========')
-	_model = MaskRCNN(mode='inference', model_dir=model_folder_path,config=cfg)
+	_model = MaskRCNN(mode='inference', model_dir=model_folder_path, config=cfg)
 	print('=================after loading model==============')
 	_model.load_weights(weights_path, by_name=True)
 	global _graph
 	_graph = tf.get_default_graph()
+
+
+@application.before_first_request
+def load_model():
+	load_model_impl()
 
 
 def myImageLoader(imageInput):
