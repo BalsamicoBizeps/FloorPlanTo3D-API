@@ -1,18 +1,33 @@
- steps:
-     # Download weights from GCS into weights/ for the Docker build
-     - name: 'gcr.io/cloud-builders/gsutil'
-       args: ['-m', 'cp', '-r', 'gs://bureau32-wall-extrusion-artifacts/floorplan3d/*', 'weights/']
-     # Build the image (weights/ is now populated)
-     - name: 'gcr.io/cloud-builders/docker'
-       args:
-         - 'build'
-         - '--platform'
-         - 'linux/amd64'
-         - '-t'
-         - 'europe-west1-docker.pkg.dev/$PROJECT_ID/floorplan3d/floorplan3d-api:$COMMIT_SHA'
-         - '-t'
-         - 'europe-west1-docker.pkg.dev/$PROJECT_ID/floorplan3d/floorplan3d-api:latest'
-         - '.'
-   images:
-     - 'europe-west1-docker.pkg.dev/$PROJECT_ID/floorplan3d/floorplan3d-api:$COMMIT_SHA'
-     - 'europe-west1-docker.pkg.dev/$PROJECT_ID/floorplan3d/floorplan3d-api:latest'
+steps:
+  - name: 'ubuntu'
+    entrypoint: 'bash'
+    args: ['mkdir', '-p', 'weights']
+  - name: 'gcr.io/cloud-builders/gsutil'
+    args: ['-m', 'cp', '-r', 'gs://bureau32-wall-extrusion-artifacts/floorplan3d/*', 'weights/']
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '--platform'
+      - 'linux/amd64'
+      - '-t'
+      - 'europe-west1-docker.pkg.dev/$PROJECT_ID/floorplan3d/floorplan3d-api:$COMMIT_SHA'
+      - '-t'
+      - 'europe-west1-docker.pkg.dev/$PROJECT_ID/floorplan3d/floorplan3d-api:latest'
+      - '.'
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'floorplan3d-api'
+      - '--image=europe-west1-docker.pkg.dev/$PROJECT_ID/floorplan3d/floorplan3d-api:$COMMIT_SHA'
+      - '--region=europe-west1'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--memory=4Gi'
+      - '--cpu=2'
+      - '--timeout=600'
+      
+images:
+  - 'europe-west1-docker.pkg.dev/$PROJECT_ID/floorplan3d/floorplan3d-api:$COMMIT_SHA'
+  - 'europe-west1-docker.pkg.dev/$PROJECT_ID/floorplan3d/floorplan3d-api:latest'
