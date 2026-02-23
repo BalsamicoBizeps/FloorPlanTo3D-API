@@ -4,7 +4,7 @@ options:
 steps:
   - name: 'ubuntu'
     entrypoint: 'bash'
-    args: ['mkdir', '-p', 'weights']
+    args: ['-c', 'mkdir -p weights']
   - name: 'gcr.io/cloud-builders/gsutil'
     args: ['-m', 'cp', '-r', 'gs://bureau32-wall-extrusion-artifacts/floorplan3d/*', 'weights/']
   - name: 'gcr.io/cloud-builders/docker'
