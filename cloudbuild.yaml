@@ -17,6 +17,8 @@ steps:
       - '-t'
       - 'europe-west1-docker.pkg.dev/$PROJECT_ID/floorplan3d/floorplan3d-api:latest'
       - '.'
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'europe-west1-docker.pkg.dev/$PROJECT_ID/floorplan3d/floorplan3d-api:$COMMIT_SHA']
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
