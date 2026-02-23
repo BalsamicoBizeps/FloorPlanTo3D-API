@@ -42,6 +42,7 @@ from PIL import Image
 
 
 global _model
+_model = None
 global _graph
 global cfg
 ROOT_DIR = os.path.abspath("./")
@@ -85,6 +86,9 @@ def load_model_impl():
 
 @application.before_first_request
 def load_model():
+	# Model already loaded at startup by run.py; skip to avoid graph/session issues in worker threads
+	if _model is not None:
+		return
 	load_model_impl()
 
 
